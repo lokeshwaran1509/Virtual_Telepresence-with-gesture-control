@@ -9,20 +9,18 @@ import pigpio
 global duty
 duty = 0
 
-GPIO.setmode(GPIO.BCM)   
+phw = pigpio.pi()
 
-UDP_IP = "10.148.3.90"        //your IP address of RPi
-UDP_PORT = 5555  
+addr_IP = "10.148.3.90"        //your IP address of RPi
+addr_PORT = 5555  
 
 sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) 
 sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1) 
 sock.setsockopt(socket.SOL_SOCKET,socket.SO_BROADCAST,1)
-sock.bind((UDP_IP, UDP_PORT))
+sock.bind((addr_IP, addr_PORT))
 
-pi_hw = pigpio.pi()
-
-pi_hw.hardware_PWM(18, 50, 0)  #vertical = 18
-pi_hw.hardware_PWM(13, 50, 0)  #horizontal   = 19
+phw.hardware_PWM(18, 800, 0)  #vertical = 18
+phw.hardware_PWM(13, 800, 0)  #horizontal = 13
 
 
 def setAngle(angle):
@@ -47,20 +45,17 @@ def get_acc(data):
 	return [acc_x,acc_y,acc_z]
 
 while True:
-    data, addr = sock.recvfrom(1024)
+    data, adr = sock.recvfrom(1024)
+    data =  data.decode()			
     acc_op = get_acc(data)
-    
+	
     y_theta = get_y_rotation(acc_op[0],acc_op[1],acc_op[2])
     x_theta = get_x_rotation(acc_op[0],acc_op[1],acc_op[2])
     
     duty_x = setAngle(x_theta) * 10000
-    pi_hw.hardware_PWM(13, 50, duty_x)  
-    #time.sleep(2)
+    phw.hardware_PWM(13, 50, int(duty_x))  
+    # time.sleep()
     duty_y= setAngle(-y_theta) * 10000
-    pi_hw.hardware_PWM(18, 50, duty_y)  
-    
-    #print(y_theta , "y_th" )
-    #print(x_theta , "x_th")
-    #time.sleep(1)
+    phw.hardware_PWM(18, 50, int(duty_y))  
 
-pi_hw.stop()
+phw.stop()
