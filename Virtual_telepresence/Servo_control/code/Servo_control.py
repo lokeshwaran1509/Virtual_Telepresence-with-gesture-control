@@ -11,7 +11,7 @@ duty = 0
 
 phw = pigpio.pi()
 
-addr_IP = "10.148.3.90"        //your IP address of RPi
+addr_IP = "xx.xx.xx.xx"        // your IP address of RPi
 addr_PORT = 5555  
 
 sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) 
